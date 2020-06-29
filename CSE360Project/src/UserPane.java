@@ -1,14 +1,4 @@
-// Assignment #: Arizona State University CSE205
-//         Name: Anna Huber
-//    StudentID: 1215348368
-//      Lecture: Your lecture time (e.g., MWF 9:40am)
-//  Description: The UserPane class creates a canvas where we can use
-//               mouse key to draw lines with different colors and widths.
-//               We can also use the the two buttons to erase the last
-//                                   drawn line or clear them all.
 
-//import any classes necessary here
-//----
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
