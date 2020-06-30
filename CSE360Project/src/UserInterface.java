@@ -16,8 +16,8 @@ public class UserInterface extends Application
       rootPane.getChildren().add(gui);
    
       // Create a scene and place rootPane in the stage
-      Scene scene = new Scene(rootPane, 600, 400);
-      primaryStage.setTitle("Line Drawing"); 
+      Scene scene = new Scene(rootPane, 800, 800);
+      primaryStage.setTitle("Stats GUI"); 
       primaryStage.setScene(scene); // Place the scene in the stage
       primaryStage.show(); // Display the stage
    }
