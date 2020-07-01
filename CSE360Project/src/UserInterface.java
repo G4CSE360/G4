@@ -17,7 +17,7 @@ public class UserInterface extends Application
    
       // Create a scene and place rootPane in the stage
       Scene scene = new Scene(rootPane, 600, 400);
-      primaryStage.setTitle("Statics Application"); 
+      primaryStage.setTitle("Statics Application."); 
       primaryStage.setScene(scene); // Place the scene in the stage
       primaryStage.show(); // Display the stage
    }
