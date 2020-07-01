@@ -1,3 +1,4 @@
+//Group 4
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -16,8 +17,8 @@ public class UserInterface extends Application
       rootPane.getChildren().add(gui);
    
       // Create a scene and place rootPane in the stage
-      Scene scene = new Scene(rootPane, 600, 400);
-      primaryStage.setTitle("Statics Application"); 
+      Scene scene = new Scene(rootPane, 800, 500);
+      primaryStage.setTitle("Stats GUI"); 
       primaryStage.setScene(scene); // Place the scene in the stage
       primaryStage.show(); // Display the stage
    }
