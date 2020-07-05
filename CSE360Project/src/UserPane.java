@@ -1,4 +1,7 @@
-//Group 4 Code
+//Group 4
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -11,17 +14,27 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Line;
+import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.scene.paint.Color;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Orientation;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -32,7 +45,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Label;
 
-public class UserPane extends BorderPane {
+public class UserPane extends BorderPane 
+{
 	private Button manualButton, fileButton, deleteButton, displayStats, outputFile, addNewButton;
 	private ComboBox<String> displayFeatures;
 	private Pane canvas;
@@ -42,6 +56,11 @@ public class UserPane extends BorderPane {
 	private float[] data;
 	private int rows, columns;
 	private String filename;
+	FileWriter fw;
+	BufferedWriter bw;
+	PrintWriter outFile;
+	FileChooser fileChooser;
+	Stage newStage;
 	//Pop Ups:
 	Alert messageFrame;
 	TextInputDialog displayOptions;
@@ -49,9 +68,11 @@ public class UserPane extends BorderPane {
 	ChoiceDialog<String> deleteOptions;
 	List<String> choices = new ArrayList<>();
 	
+	
 	// Constructor
 
-	public UserPane() {
+	public UserPane() 
+	{
 		// Step #1: initialize instance variable and set up layout
 		manualButton = new Button("add data");
 		fileButton = new Button("add data from file");
@@ -107,6 +128,7 @@ public class UserPane extends BorderPane {
 		stats.setVgap(10);
 		stats.setPadding(new Insets(0, 10, 0, 10));
 		
+		
 		VBox midPane = new VBox();
 		midPane.setSpacing(10);
 		midPane.setPadding(new Insets(10, 10, 10, 10));
@@ -141,14 +163,19 @@ public class UserPane extends BorderPane {
 
 
 	// Step #2(B)- A handler class used to handle events from Undo & Erase buttons
-	private class ButtonHandler implements EventHandler<ActionEvent> {
-		public void handle(ActionEvent event) {
+	private class ButtonHandler implements EventHandler<ActionEvent> 
+	{
+		public void handle(ActionEvent event) 
+		{
 			Object source = event.getSource();
-			if(source == manualButton) { //user has inputed data manually
+			if(source == manualButton) 
+			{ //user has inputed data manually
 				String[] dataString = dataEntry.getText().split(" ");
 				
-				for(int i = 0; i < dataString.length; i++) {
-					if(!dataString[i].matches("[0-9]+")) {
+				for(int i = 0; i < dataString.length; i++) 
+				{
+					if(!dataString[i].matches("[0.0-9.0]+"))
+					{
 						messageFrame = new Alert(AlertType.ERROR);
 						messageFrame.setTitle("Data Entry Error");
 						messageFrame.setHeaderText("An error has occured.");
@@ -160,8 +187,9 @@ public class UserPane extends BorderPane {
 				
 				}
 				data = new float[dataString.length];
-				for(int j = 0; j<dataString.length; j++) {
-					data[j] = Integer.parseInt(dataString[j]);
+				for(int j = 0; j<dataString.length; j++) 
+				{
+					data[j] = Float.parseFloat(dataString[j]);
 				}
 				
 				//Now that there is data, the following options are available thus enabled
@@ -172,8 +200,10 @@ public class UserPane extends BorderPane {
 				
 				displayData();
 				
-			}else if(source == fileButton) { //user has opted to upload a file with data
-				fileInput = new TextInputDialog(".txt file name");
+			}
+			else if(source == fileButton)
+			{ //user has opted to upload a file with data
+				/*fileInput = new TextInputDialog(".txt file name");
 				fileInput.setTitle("Upload Data");
 				fileInput.setHeaderText("Input a file name with your data");
 				fileInput.setContentText("Please enter file name");
@@ -181,9 +211,17 @@ public class UserPane extends BorderPane {
 				Optional<String> result = fileInput.showAndWait();
 				if(result.isPresent()) {
 					filename = result.get();
+					readFileHandler(filename);
 				}
-				
-			}else if(source == deleteButton) {
+				*/
+				fileChooser = new FileChooser();
+			
+				File selectedFile = fileChooser.showOpenDialog(newStage);
+				readFileHandler(selectedFile);
+			}
+			
+			else if(source == deleteButton) 
+			{
 				choices.add("Delete All");
 				choices.add("Delete Data Value");
 				deleteOptions = new ChoiceDialog<>("Delete options", choices);
@@ -203,8 +241,11 @@ public class UserPane extends BorderPane {
 						outputFile.setDisable(true);
 						displayData();
 						
-					}else {
-						if(findValuetoDelete()) {
+					}
+					else 
+					{
+						if(findValuetoDelete()) 
+						{
 							messageFrame = new Alert(AlertType.INFORMATION);
 							messageFrame.setTitle("Message");
 							messageFrame.setHeaderText(null);
@@ -213,7 +254,9 @@ public class UserPane extends BorderPane {
 							messageFrame.showAndWait();
 							displayData();
 							return;
-						}else {
+						}
+						else 
+						{
 							messageFrame = new Alert(AlertType.WARNING);
 							messageFrame.setTitle("Warning");
 							messageFrame.setHeaderText(null);
@@ -227,16 +270,21 @@ public class UserPane extends BorderPane {
 					
 				}
 				
-			}else if(source == displayStats) {
+			}
+			else if(source == displayStats)
+			{
 				
 			}
 		
 		}
 
 	}
-	private class DisplayHandler implements EventHandler<ActionEvent>{
+	
+	private class DisplayHandler implements EventHandler<ActionEvent>
+	{
 
-		public void handle(ActionEvent event) {
+		public void handle(ActionEvent event) 
+		{
 			int dSelection = displayFeatures.getSelectionModel().getSelectedIndex();
 			
 			if(dSelection == 0) { //for vertical display (Adjust number of columns)
@@ -246,14 +294,17 @@ public class UserPane extends BorderPane {
 				displayOptions.setContentText("Please enter a number: ");
 				
 				Optional<String> result = displayOptions.showAndWait();
-				if(result.isPresent()) {
+				if(result.isPresent())
+				{
 					Integer Cvalue = Integer.valueOf(result.get());
 					columns = Cvalue;
 					displayData();
 					return;
 				}
 				
-			}else {				  //for horizontal display (Adjust number of rows)
+			}
+			else 
+			{				  //for horizontal display (Adjust number of rows)
 				displayOptions = new TextInputDialog("Number of Rows");
 				displayOptions.setTitle("Horizontal Adjustment");
 				displayOptions.setHeaderText("Input the desired number of rows");
@@ -272,7 +323,8 @@ public class UserPane extends BorderPane {
 		
 	}
 
-	public boolean findValuetoDelete() {
+	public boolean findValuetoDelete()
+	{
 		float dValue = 0;
 		TextInputDialog deleteValue = new TextInputDialog("value");
 		deleteValue.setTitle("Delete a value");
@@ -280,12 +332,15 @@ public class UserPane extends BorderPane {
 		deleteValue.setContentText("Please enter a number: ");
 			
 		Optional<String> result = deleteValue.showAndWait();
-		if(result.isPresent()) {
+		if(result.isPresent())
+		{
 			 dValue = Integer.valueOf(result.get());
 		}
 		
-		for(int i = 0; i<data.length; i++) {
-			if(data[i] == dValue) {
+		for(int i = 0; i<data.length; i++)
+		{
+			if(data[i] == dValue) 
+			{
 				data[i] = 0;
 				return true;
 			}
@@ -293,7 +348,8 @@ public class UserPane extends BorderPane {
 		return false;
 	}
 	
-	public void displayData() {
+	public void displayData() 
+	{
 		stats.getChildren().removeAll(stats.getChildren());
 		stats.setPrefColumns(columns);
 		stats.setPrefRows(rows);
@@ -303,4 +359,67 @@ public class UserPane extends BorderPane {
 			stats.getChildren().add(current);
 		}
 	}
+	
+	public void writeFileHandler(String file) {
+		try{
+			fw = new FileWriter(file);
+			bw = new BufferedWriter(fw);
+			outFile = new PrintWriter(bw);
+			
+		}catch (FileNotFoundException ex) {
+			System.out.println("The file " + filename + " was not found");
+		} catch (IOException ex2) {
+			System.out.println("exception");
+		}
+	}
+	
+	public void readFileHandler(File file) {
+		try {
+			FileReader fr = new FileReader(file);
+			BufferedReader inFile = new BufferedReader(fr);
+			String line;
+			int count = 0;
+			int index = 0;
+
+			while((line = inFile.readLine()) != null) {
+				if(line.matches("[0.0-9.0]+")) {
+					count++;
+				}
+			}
+			data = new float[count];
+			fr = new FileReader(file);
+			inFile = new BufferedReader(fr);
+			
+			while((line = inFile.readLine()) != null) {
+				//values that are non-numbers/symbols will be filtered out here, and will not be added to the data array
+				if(line.matches("[0.0-9.0]+"))
+				{
+					data[index] = Float.parseFloat(line);
+					index++;
+				}
+			}
+
+			inFile.close();
+			displayData();
+		} catch (FileNotFoundException ex) {
+			messageFrame = new Alert(AlertType.ERROR);
+			messageFrame.setTitle("Data Entry Error");
+			messageFrame.setHeaderText("An error has occured.");
+			messageFrame.setContentText("The file " + file + " was not found, please enter valid file name");
+			
+			messageFrame.showAndWait();
+		} catch (IOException ex2) {
+			System.out.println("exception");
+			
+			messageFrame = new Alert(AlertType.ERROR);
+			messageFrame.setTitle("Data Entry Error");
+			messageFrame.setHeaderText("An error has occured.");
+			messageFrame.setContentText("IOExcpetion has occured, please try again");
+			
+			messageFrame.showAndWait();
+		}
+		// ************************************************************************************/
+		
+	}
+
 }// end class UserPane
