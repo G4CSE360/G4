@@ -1,5 +1,6 @@
 //Group 4
-
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -7,20 +8,26 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.ComboBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.HBox;
-import javafx.stage.FileChooser;
-import javafx.geometry.Insets;
-
-import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Font;
-
+import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.scene.paint.Color;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.Orientation;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,16 +36,20 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Logger;
+ import java.util.ArrayList;
+ import java.util.List;
+ import java.util.Optional;
+ import java.util.logging.Logger;
+ import java.util.stream.Stream;
+
+ import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Label;
-
 public class UserPane extends BorderPane 
 {
 	private Button manualButton, fileButton, deleteButton, displayStats, outputFile, addNewButton;
@@ -47,85 +58,88 @@ public class UserPane extends BorderPane
 	private TextArea dataEntry;
 	private Label label1;
 	private TilePane stats;
-	private float[] data;
+	private List<Float> data = new ArrayList<>();
 	private int rows, columns;
+	private String filename;
 	FileWriter fw;
 	BufferedWriter bw;
 	PrintWriter outFile;
 	FileChooser fileChooser;
 	Stage newStage;
-	//Pop Ups:
-	Alert messageFrame;
-	TextInputDialog displayOptions;
+ 	//Pop Ups:
+ 	Alert messageFrame;
+ 	TextInputDialog displayOptions;
 
-	ChoiceDialog<String> deleteOptions;
-	List<String> choices = new ArrayList<>();
-	
+
+ 	ChoiceDialog<String> deleteOptions;
+ 	List<String> choices = new ArrayList<>();
+
 	
 	// Constructor
-
 	public UserPane() 
 	{
+		// Step #1: initialize instance variable and set up layout
 		//Initialize instance variable and set up layout
+
+ 		//Buttons:
+ 		manualButton = new Button("add data");
+ 		manualButton.setFont(Font.font("Times New Roman", 15));
+ 		fileButton = new Button("add data from file");
+ 		fileButton.setFont(Font.font("Times New Roman", 15));
+ 		deleteButton = new Button("delete data");
+ 		deleteButton.setFont(Font.font("Times New Roman", 15));
+ 		displayStats = new Button("display statistics");
+ 		displayStats.setFont(Font.font("Times New Roman", 15));
+ 		outputFile = new Button("output file");
+ 		outputFile.setFont(Font.font("Times New Roman", 15));
+ 		addNewButton = new Button("add new data");
+
+ 		addNewButton.setFont(Font.font("Times New Roman", 15));
+	
 		
-		//Buttons:
-		manualButton = new Button("add data");
-		manualButton.setFont(Font.font("Times New Roman", 15));
-		fileButton = new Button("add data from file");
-		fileButton.setFont(Font.font("Times New Roman", 15));
-		deleteButton = new Button("delete data");
-		deleteButton.setFont(Font.font("Times New Roman", 15));
-		displayStats = new Button("display statistics");
-		displayStats.setFont(Font.font("Times New Roman", 15));
-		outputFile = new Button("output file");
-		outputFile.setFont(Font.font("Times New Roman", 15));
-		addNewButton = new Button("add new data");
-		addNewButton.setFont(Font.font("Times New Roman", 15));
-		
-		manualButton.setMinWidth(80.0);
-		fileButton.setMinWidth(80.0);
-		deleteButton.setMinWidth(80.0);
-		displayStats.setMinWidth(150.0);
-		outputFile.setMinWidth(150.0);
-		
-		
-		//Buttons that require data will be disabled until data is entered to avoid errors
-		manualButton.setDisable(false);
-		fileButton.setDisable(false);
-		deleteButton.setDisable(true);
-		displayStats.setDisable(true);
-		outputFile.setDisable(true);
-		addNewButton.setDisable(true);
-		
-		//Instructions and Text Area for manual entry:
-		dataEntry = new TextArea();
-		dataEntry.setText("Ex: 34 6 8 20 9 28");
-		dataEntry.setFont(Font.font("Times New Roman", 15));
-		label1 = new Label();
-		label1.setText("Enter data manually below OR press 'Add data from file' to upload a file");
-		label1.setFont(Font.font("Times New Roman", 15));
-		
-		//ComboBox for horizontal/vertical options:
+ 		//Buttons that require data will be disabled until data is entered to avoid errors
+ 		manualButton.setDisable(false);
+ 		fileButton.setDisable(false);
+ 		deleteButton.setDisable(true);
+ 		displayStats.setDisable(true);
+ 		outputFile.setDisable(true);
+ 		addNewButton.setDisable(true);
+
+ 		//Instructions and Text Area for manual entry:
+ 		dataEntry = new TextArea();
+ 		dataEntry.setText("Ex: 34 6 8 20 9 28");
+ 		dataEntry.setFont(Font.font("Times New Roman", 15));
+ 		label1 = new Label();
+ 		label1.setText("Enter data manually below OR press 'Add data from file' to upload a file");
+ 		label1.setFont(Font.font("Times New Roman", 15));
+	
+		// Create the display comboBox,
+		// ----
 		displayFeatures = new ComboBox<String>();
 		displayFeatures.getItems().addAll("display vertically", "display horizontally");
 		
-
-		// Top of the GUI
+		// topPane should contain two combo boxes and two buttons
 		HBox topPane = new HBox();
 		topPane.setSpacing(40);
 		topPane.setPadding(new Insets(10, 10, 10, 10));
 		topPane.setStyle("-fx-border-color: white");
-	
-		topPane.setBackground(new Background(new BackgroundFill(Color.rgb(66,135,245), CornerRadii.EMPTY, Insets.EMPTY)));
+
+ 		topPane.setBackground(new Background(new BackgroundFill(Color.rgb(66,135,245), CornerRadii.EMPTY, Insets.EMPTY)));
 		topPane.getChildren().addAll(manualButton, fileButton, displayFeatures);
 		
-		//Middle Area of the GUI:
 		HBox midOptions = new HBox();
 		midOptions.setSpacing(40);
 		midOptions.setPadding(new Insets(10, 10, 10, 10));
 		midOptions.setStyle("-fx-border-color: white");
 		midOptions.setBackground(new Background(new BackgroundFill(Color.rgb(66,135,245), CornerRadii.EMPTY, Insets.EMPTY)));
 		midOptions.getChildren().addAll(addNewButton, deleteButton);
+		
+		//Pane where all of the data and stats will be displayed
+		stats = new TilePane();
+		stats.setHgap(10);
+		stats.setVgap(10);
+		stats.setPadding(new Insets(0, 10, 0, 10));
+		
 		
 		VBox midPane = new VBox();
 		midPane.setSpacing(10);
@@ -134,14 +148,7 @@ public class UserPane extends BorderPane
 		midPane.setBackground(new Background(new BackgroundFill(Color.rgb(199,232,255), CornerRadii.EMPTY, Insets.EMPTY)));
 		midPane.getChildren().addAll(label1, dataEntry, midOptions, stats);
 		
-	
-		//Pane where all of the data and stats will be displayed
-		stats = new TilePane();
-		stats.setHgap(10);
-		stats.setVgap(10);
-		stats.setPadding(new Insets(0, 10, 0, 10));
 		
-		//Bottom of the GUI
 		HBox bottomPane = new HBox();
 		bottomPane.setSpacing(100);
 		bottomPane.setPadding(new Insets(10, 100, 10, 10));
@@ -153,8 +160,6 @@ public class UserPane extends BorderPane
 		this.setCenter(midPane);
 		this.setTop(topPane);
 		this.setBottom(bottomPane);
-
-		//All ActionHandlers for buttons, textArea, and Combobox
 		manualButton.setOnAction(new ButtonHandler());
 		fileButton.setOnAction(new ButtonHandler());
 		deleteButton.setOnAction(new ButtonHandler());
@@ -163,11 +168,7 @@ public class UserPane extends BorderPane
 		
 		displayFeatures.setOnAction(new DisplayHandler());
 		
-
 	}
-
-
-
 	// Step #2(B)- A handler class used to handle events from Undo & Erase buttons
 	private class ButtonHandler implements EventHandler<ActionEvent> 
 	{
@@ -192,10 +193,10 @@ public class UserPane extends BorderPane
 					}
 				
 				}
-				data = new float[dataString.length];
+				
 				for(int j = 0; j<dataString.length; j++) 
 				{
-					data[j] = Float.parseFloat(dataString[j]);
+					data.add(j, Float.parseFloat(dataString[j]));
 				}
 				
 				//Now that there is data, the following options are available thus enabled
@@ -205,19 +206,21 @@ public class UserPane extends BorderPane
 				outputFile.setDisable(false);
 				
 				displayData();
-				
-			}
-			else if(source == fileButton)
-			{ //user wants to upload file with data
-				fileChooser = new FileChooser();
-				fileChooser.setTitle("Import Data File");
-				fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
-				File selectedFile = fileChooser.showOpenDialog(newStage);
-				readFileHandler(selectedFile);
-			}
+
+ 			}
+ 			else if(source == fileButton)
+
+ 			{ 
+ 				fileChooser = new FileChooser();
+
+ 				fileChooser.setTitle("Import Data File");
+ 				fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+ 				File selectedFile = fileChooser.showOpenDialog(newStage);
+ 				readFileHandler(selectedFile);
+ 			}
 			
 			else if(source == deleteButton) 
-			{//user wants to delete data
+			{
 				choices.add("Delete All");
 				choices.add("Delete Data Value");
 				deleteOptions = new ChoiceDialog<>("Delete options", choices);
@@ -264,28 +267,27 @@ public class UserPane extends BorderPane
 						}
 					}
 					
-				}
-				
-			}
-			else if(source == outputFile)
-			{//User wants to save data to a file
-				
-				fileChooser = new FileChooser();
-				fileChooser.setTitle("Save Data");
-				fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
-				File newFile = fileChooser.showSaveDialog(newStage);
-				if(newFile != null) {
-					writeFileHandler(newFile);
-				}
-			}
-		
-		}
+ 				}
 
+ 			}
+
+ 			else if(source == outputFile)
+ 			{
+
+ 				fileChooser = new FileChooser();
+ 				fileChooser.setTitle("Save Data");
+ 				fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+ 				File newFile = fileChooser.showSaveDialog(newStage);
+ 				if(newFile != null) {
+ 					writeFileHandler(newFile);
+ 				}
+ 			}
+
+ 		}
 	}
 	
 	private class DisplayHandler implements EventHandler<ActionEvent>
 	{
-
 		public void handle(ActionEvent event) 
 		{
 			int dSelection = displayFeatures.getSelectionModel().getSelectedIndex();
@@ -325,8 +327,6 @@ public class UserPane extends BorderPane
 		}
 		
 	}
-
-
 	public boolean findValuetoDelete()
 	{
 		float dValue = 0;
@@ -341,11 +341,11 @@ public class UserPane extends BorderPane
 			 dValue = Float.valueOf(result.get());
 		}
 		
-		for(int i = 0; i<data.length; i++)
+		for(int i = 0; i<data.size(); i++)
 		{
-			if(data[i] == dValue) 
+			if(data.get(i) == dValue) 
 			{
-				
+				data.remove(i);
 				return true;
 			}
 		}
@@ -358,24 +358,25 @@ public class UserPane extends BorderPane
 		stats.setPrefColumns(columns);
 		stats.setPrefRows(rows);
 		Label current;
-		for(int i = 0; i < data.length; i++) {
-			current = new Label("" + data[i]);
+		for(int i = 0; i < data.size(); i++) {
+			current = new Label("" + data.get(i));
 			stats.getChildren().add(current);
-		}
-	}
-	
-	public void writeFileHandler(File file) {
-		try {
-			PrintWriter writer = new PrintWriter(file);
-			for(int i = 0; i < data.length; i++) {
-				writer.println(data[i]);
-			}
-			writer.close();
-		}catch(IOException ex){
-			Logger.getLogger(UserPane.class.getName());
-		}
-	}
-	
+ 		}
+ 	}
+
+
+ 	public void writeFileHandler(File file) {
+ 		try {
+ 			PrintWriter writer = new PrintWriter(file);
+ 			for(int i = 0; i < data.size(); i++) {
+ 				writer.println(data.get(i));
+ 			}
+ 			writer.close();
+ 		}catch(IOException ex){
+ 			Logger.getLogger(UserPane.class.getName());
+ 		}
+ 	}
+
 	public void readFileHandler(File file) {
 		try {
 			FileReader fr = new FileReader(file);
@@ -383,13 +384,12 @@ public class UserPane extends BorderPane
 			String line;
 			int count = 0;
 			int index = 0;
-
 			while((line = inFile.readLine()) != null) {
 				if(line.matches("[0.0-9.0]+")) {
 					count++;
 				}
 			}
-			data = new float[count];
+		
 			fr = new FileReader(file);
 			inFile = new BufferedReader(fr);
 			
@@ -397,11 +397,10 @@ public class UserPane extends BorderPane
 				//values that are non-numbers/symbols will be filtered out here, and will not be added to the data array
 				if(line.matches("[0.0-9.0]+"))
 				{
-					data[index] = Float.parseFloat(line);
+					data.add(index, Float.parseFloat(line));
 					index++;
 				}
 			}
-
 			inFile.close();
 			displayData();
 		} catch (FileNotFoundException ex) {
@@ -424,7 +423,4 @@ public class UserPane extends BorderPane
 		// ************************************************************************************/
 		
 	}
-
-
-
 }// end class UserPane
