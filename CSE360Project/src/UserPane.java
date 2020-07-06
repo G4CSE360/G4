@@ -88,6 +88,8 @@ public class UserPane extends BorderPane
  		fileButton.setFont(Font.font("Times New Roman", 15));
  		deleteButton = new Button("delete data");
  		deleteButton.setFont(Font.font("Times New Roman", 15));
+ 		choices.add("Delete All");
+		choices.add("Delete Data Value");
  		displayStats = new Button("display statistics");
  		displayStats.setFont(Font.font("Times New Roman", 15));
  		outputFile = new Button("output file");
@@ -165,7 +167,7 @@ public class UserPane extends BorderPane
 		deleteButton.setOnAction(new ButtonHandler());
 		displayStats.setOnAction(new ButtonHandler());
 		outputFile.setOnAction(new ButtonHandler());
-		
+		addNewButton.setOnAction(new ButtonHandler());
 		displayFeatures.setOnAction(new DisplayHandler());
 		
 	}
@@ -221,8 +223,7 @@ public class UserPane extends BorderPane
 			
 			else if(source == deleteButton) 
 			{
-				choices.add("Delete All");
-				choices.add("Delete Data Value");
+				
 				deleteOptions = new ChoiceDialog<>("Delete options", choices);
 				
 				deleteOptions.setTitle("Deletion Options");
@@ -232,7 +233,7 @@ public class UserPane extends BorderPane
 				Optional<String> result = deleteOptions.showAndWait();
 				if(result.isPresent()) {
 					if(result.get().equals("Delete All")) {
-						data = null;
+						data.removeAll(data);
 						
 						addNewButton.setDisable(true);
 						deleteButton.setDisable(true);
@@ -281,6 +282,33 @@ public class UserPane extends BorderPane
  				if(newFile != null) {
  					writeFileHandler(newFile);
  				}
+ 			}
+ 			else if(source == addNewButton) {
+ 				
+ 				TextInputDialog addNew = new TextInputDialog("value");
+ 				addNew.setTitle("Delete a value");
+ 				addNew.setHeaderText("Value entered here will be deleted from data");
+ 				addNew.setContentText("Please enter a number: ");
+ 					
+ 				Optional<String> result = addNew.showAndWait();
+ 				if(result.isPresent())
+ 				{
+ 					try{
+ 						Float newValue = Float.valueOf(result.get());
+ 						data.add(newValue);
+ 						displayData();
+ 					}catch(NumberFormatException ex) {
+ 						messageFrame = new Alert(AlertType.ERROR);
+ 	 					messageFrame.setTitle("Data Entry Error");
+ 	 					messageFrame.setHeaderText("An error has occured.");
+ 	 					messageFrame.setContentText("Not a valid data value!");
+ 	 					
+ 	 					messageFrame.showAndWait();
+ 					}
+ 					
+ 				}
+ 					
+ 			
  			}
 
  		}
@@ -403,6 +431,12 @@ public class UserPane extends BorderPane
 			}
 			inFile.close();
 			displayData();
+			
+			addNewButton.setDisable(false);
+			deleteButton.setDisable(false);
+			displayStats.setDisable(false);
+			outputFile.setDisable(false);
+			
 		} catch (FileNotFoundException ex) {
 			messageFrame = new Alert(AlertType.ERROR);
 			messageFrame.setTitle("Data Entry Error");
