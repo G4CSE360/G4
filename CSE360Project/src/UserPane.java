@@ -323,6 +323,7 @@ public class UserPane extends BorderPane
 		
 	}
 
+
 	public boolean findValuetoDelete()
 	{
 		float dValue = 0;
@@ -421,5 +422,7 @@ public class UserPane extends BorderPane
 		// ************************************************************************************/
 		
 	}
+
+
 
 }// end class UserPane
