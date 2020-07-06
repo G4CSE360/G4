@@ -1,5 +1,8 @@
 
 //Group 4
+//import java.util.*; 
+
+
 import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -44,6 +47,9 @@ public class UserPane extends BorderPane {
 	private TilePane stats;
 	private List<Float> data = new ArrayList<>();
 	private int rows, columns;
+	public float avg;
+
+	
 
 	FileWriter fw;
 	BufferedWriter bw;
@@ -160,7 +166,7 @@ public class UserPane extends BorderPane {
 			Object source = event.getSource();
 			if (source == manualButton) { // user has inputed data manually
 				String[] dataString = dataEntry.getText().split(" ");
-
+				avg = 0;
 				for (int i = 0; i < dataString.length; i++) {
 					if (!dataString[i].matches("[0.0-9.0]+")) {
 						messageFrame = new Alert(AlertType.ERROR);
@@ -204,7 +210,7 @@ public class UserPane extends BorderPane {
 				deleteOptions.setTitle("Deletion Options");
 				deleteOptions.setHeaderText("What would you like to delete?");
 				deleteOptions.setContentText("Please choose an option");
-
+				avg = 0;
 				Optional<String> result = deleteOptions.showAndWait();
 				if (result.isPresent()) {
 					if (result.get().equals("Delete All")) {
@@ -337,16 +343,27 @@ public class UserPane extends BorderPane {
 		}
 		return false;
 	}
+	
+
 
 	public void displayData() {
 		stats.getChildren().removeAll(stats.getChildren());
 		stats.setPrefColumns(columns);
 		stats.setPrefRows(rows);
 		Label current;
+		Label average;
+		//Label median;
+
 		for (int i = 0; i < data.size(); i++) {
 			current = new Label("" + data.get(i));
 			stats.getChildren().add(current);
+			avg += (float) data.get(i);
+			
 		}
+		float averages = (float) avg / data.size();
+		average = new Label("mean = " + averages);
+		//median = new Label("median =" + findMedian(data,data.size()));
+		stats.getChildren().add(average);
 	}
 
 	public void writeFileHandler(File file) {
