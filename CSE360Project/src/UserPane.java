@@ -28,6 +28,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,17 +39,21 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Label;
 
-public class UserPane extends BorderPane {
-	private Button manualButton, fileButton, deleteButton, displayStats, outputFile, addNewButton;
+public class UserPane extends BorderPane 
+{
+	private Button manualButton, fileButton, deleteButton, displayStats, outputFile;
+	//addNewButton;
 	private ComboBox<String> displayFeatures;
 
 	private TextArea dataEntry;
 	private Label label1;
+	public Label medianLbl;
 	private TilePane stats;
 	private List<Float> data = new ArrayList<>();
 	private int rows, columns;
 	public float avg;
-
+	public float median;
+	public float median2;
 	
 
 	FileWriter fw;
@@ -62,9 +67,12 @@ public class UserPane extends BorderPane {
 
 	ChoiceDialog<String> deleteOptions;
 	List<String> choices = new ArrayList<>();
+	
+	private static DecimalFormat df = new DecimalFormat("0.00");
 
 	// Constructor
-	public UserPane() {
+	public UserPane() 
+	{
 		// Step #1: initialize instance variable and set up layout
 		// Initialize instance variable and set up layout
 
@@ -81,9 +89,9 @@ public class UserPane extends BorderPane {
 		displayStats.setFont(Font.font("Times New Roman", 15));
 		outputFile = new Button("output file");
 		outputFile.setFont(Font.font("Times New Roman", 15));
-		addNewButton = new Button("add new data");
+		//addNewButton = new Button("add new data");
 
-		addNewButton.setFont(Font.font("Times New Roman", 15));
+		//addNewButton.setFont(Font.font("Times New Roman", 15));
 
 		// Buttons that require data will be disabled until data is entered to avoid
 		// errors
@@ -92,7 +100,7 @@ public class UserPane extends BorderPane {
 		deleteButton.setDisable(true);
 		displayStats.setDisable(true);
 		outputFile.setDisable(true);
-		addNewButton.setDisable(true);
+		//addNewButton.setDisable(true);
 
 		// Instructions and Text Area for manual entry:
 		dataEntry = new TextArea();
@@ -101,6 +109,8 @@ public class UserPane extends BorderPane {
 		label1 = new Label();
 		label1.setText("Enter data manually below OR press 'Add data from file' to upload a file");
 		label1.setFont(Font.font("Times New Roman", 15));
+		label1.setTextFill(Color.web("#000000"));
+		
 
 		// Create the display comboBox,
 		// ----
@@ -113,8 +123,7 @@ public class UserPane extends BorderPane {
 		topPane.setPadding(new Insets(10, 10, 10, 10));
 		topPane.setStyle("-fx-border-color: white");
 
-		topPane.setBackground(
-				new Background(new BackgroundFill(Color.rgb(66, 135, 245), CornerRadii.EMPTY, Insets.EMPTY)));
+		topPane.setBackground(new Background(new BackgroundFill(Color.rgb(250, 250, 250), CornerRadii.EMPTY, Insets.EMPTY)));
 		topPane.getChildren().addAll(manualButton, fileButton, displayFeatures);
 
 		HBox midOptions = new HBox();
@@ -122,8 +131,8 @@ public class UserPane extends BorderPane {
 		midOptions.setPadding(new Insets(10, 10, 10, 10));
 		midOptions.setStyle("-fx-border-color: white");
 		midOptions.setBackground(
-				new Background(new BackgroundFill(Color.rgb(66, 135, 245), CornerRadii.EMPTY, Insets.EMPTY)));
-		midOptions.getChildren().addAll(addNewButton, deleteButton);
+				new Background(new BackgroundFill(Color.rgb(250, 250, 250), CornerRadii.EMPTY, Insets.EMPTY)));
+		midOptions.getChildren().addAll(deleteButton);
 
 		// Pane where all of the data and stats will be displayed
 		stats = new TilePane();
@@ -136,7 +145,7 @@ public class UserPane extends BorderPane {
 		midPane.setPadding(new Insets(10, 10, 10, 10));
 		midPane.setStyle("-fx-border-color: white");
 		midPane.setBackground(
-				new Background(new BackgroundFill(Color.rgb(199, 232, 255), CornerRadii.EMPTY, Insets.EMPTY)));
+				new Background(new BackgroundFill(Color.rgb(250, 250, 250), CornerRadii.EMPTY, Insets.EMPTY)));
 		midPane.getChildren().addAll(label1, dataEntry, midOptions, stats);
 
 		HBox bottomPane = new HBox();
@@ -144,7 +153,7 @@ public class UserPane extends BorderPane {
 		bottomPane.setPadding(new Insets(10, 100, 10, 10));
 		bottomPane.setStyle("-fx-border-color: white");
 		bottomPane.setBackground(
-				new Background(new BackgroundFill(Color.rgb(66, 135, 245), CornerRadii.EMPTY, Insets.EMPTY)));
+				new Background(new BackgroundFill(Color.rgb(250, 250, 250), CornerRadii.EMPTY, Insets.EMPTY)));
 		bottomPane.getChildren().addAll(displayStats, outputFile);
 
 		this.setCenter(midPane);
@@ -155,20 +164,24 @@ public class UserPane extends BorderPane {
 		deleteButton.setOnAction(new ButtonHandler());
 		displayStats.setOnAction(new ButtonHandler());
 		outputFile.setOnAction(new ButtonHandler());
-		addNewButton.setOnAction(new ButtonHandler());
+		//addNewButton.setOnAction(new ButtonHandler());
 		displayFeatures.setOnAction(new DisplayHandler());
 
 	}
 
 	// Step #2(B)- A handler class used to handle events from Undo & Erase buttons
-	private class ButtonHandler implements EventHandler<ActionEvent> {
+	private class ButtonHandler implements EventHandler<ActionEvent> 
+	{
 		public void handle(ActionEvent event) {
 			Object source = event.getSource();
-			if (source == manualButton) { // user has inputed data manually
+			if (source == manualButton) 
+			{ // user has inputed data manually
 				String[] dataString = dataEntry.getText().split(" ");
 				avg = 0;
-				for (int i = 0; i < dataString.length; i++) {
-					if (!dataString[i].matches("[0.0-9.0]+")) {
+				for (int i = 0; i < dataString.length; i++) 
+				{
+					if (!dataString[i].matches("[0.0-9.0]+")) 
+					{
 						messageFrame = new Alert(AlertType.ERROR);
 						messageFrame.setTitle("Data Entry Error");
 						messageFrame.setHeaderText("An error has occured.");
@@ -180,19 +193,21 @@ public class UserPane extends BorderPane {
 
 				}
 
-				for (int j = 0; j < dataString.length; j++) {
+				for (int j = 0; j < dataString.length; j++)
+				{
 					data.add(j, Float.parseFloat(dataString[j]));
 				}
 
 				// Now that there is data, the following options are available thus enabled
-				addNewButton.setDisable(false);
+				//addNewButton.setDisable(false);
 				deleteButton.setDisable(false);
 				displayStats.setDisable(false);
 				outputFile.setDisable(false);
 
 				displayData();
 
-			} else if (source == fileButton)
+			} 
+			else if (source == fileButton)
 
 			{
 				fileChooser = new FileChooser();
@@ -203,8 +218,8 @@ public class UserPane extends BorderPane {
 				readFileHandler(selectedFile);
 			}
 
-			else if (source == deleteButton) {
-
+			else if (source == deleteButton) 
+			{
 				deleteOptions = new ChoiceDialog<>("Delete options", choices);
 
 				deleteOptions.setTitle("Deletion Options");
@@ -212,18 +227,23 @@ public class UserPane extends BorderPane {
 				deleteOptions.setContentText("Please choose an option");
 				avg = 0;
 				Optional<String> result = deleteOptions.showAndWait();
-				if (result.isPresent()) {
-					if (result.get().equals("Delete All")) {
+				if (result.isPresent())
+				{
+					if (result.get().equals("Delete All")) 
+					{
 						data.removeAll(data);
 
-						addNewButton.setDisable(true);
+						//addNewButton.setDisable(true);
 						deleteButton.setDisable(true);
 						displayStats.setDisable(true);
 						outputFile.setDisable(true);
 						displayData();
 
-					} else {
-						if (findValuetoDelete()) {
+					} 
+					else 
+					{
+						if (findValuetoDelete()) 
+						{
 							messageFrame = new Alert(AlertType.INFORMATION);
 							messageFrame.setTitle("Message");
 							messageFrame.setHeaderText(null);
@@ -232,7 +252,9 @@ public class UserPane extends BorderPane {
 							messageFrame.showAndWait();
 							displayData();
 							return;
-						} else {
+						}
+						else 
+						{
 							messageFrame = new Alert(AlertType.WARNING);
 							messageFrame.setTitle("Warning");
 							messageFrame.setHeaderText(null);
@@ -248,16 +270,19 @@ public class UserPane extends BorderPane {
 
 			}
 
-			else if (source == outputFile) {
-
+			else if (source == outputFile) 
+			{
 				fileChooser = new FileChooser();
 				fileChooser.setTitle("Save Data");
 				fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
 				File newFile = fileChooser.showSaveDialog(newStage);
-				if (newFile != null) {
+				if (newFile != null) 
+				{
 					writeFileHandler(newFile);
 				}
-			} else if (source == addNewButton) {
+			} 
+			/*else if (source == addNewButton) 
+			{
 
 				TextInputDialog addNew = new TextInputDialog("value");
 				addNew.setTitle("Delete a value");
@@ -265,12 +290,15 @@ public class UserPane extends BorderPane {
 				addNew.setContentText("Please enter a number: ");
 
 				Optional<String> result = addNew.showAndWait();
-				if (result.isPresent()) {
-					try {
+				if (result.isPresent()) 
+				{
+					try 
+					{
 						Float newValue = Float.valueOf(result.get());
 						data.add(newValue);
 						displayData();
-					} catch (NumberFormatException ex) {
+					} catch (NumberFormatException ex) 
+					{
 						messageFrame = new Alert(AlertType.ERROR);
 						messageFrame.setTitle("Data Entry Error");
 						messageFrame.setHeaderText("An error has occured.");
@@ -281,13 +309,15 @@ public class UserPane extends BorderPane {
 
 				}
 
-			}
+			}*/
 
 		}
 	}
 
-	private class DisplayHandler implements EventHandler<ActionEvent> {
-		public void handle(ActionEvent event) {
+	private class DisplayHandler implements EventHandler<ActionEvent> 
+	{
+		public void handle(ActionEvent event) 
+		{
 			int dSelection = displayFeatures.getSelectionModel().getSelectedIndex();
 
 			if (dSelection == 0) { // for vertical display (Adjust number of columns)
@@ -297,14 +327,17 @@ public class UserPane extends BorderPane {
 				displayOptions.setContentText("Please enter a number: ");
 
 				Optional<String> result = displayOptions.showAndWait();
-				if (result.isPresent()) {
+				if (result.isPresent()) 
+				{
 					Integer Cvalue = Integer.valueOf(result.get());
 					columns = Cvalue;
 					displayData();
 					return;
 				}
 
-			} else { // for horizontal display (Adjust number of rows)
+			} 
+			else 
+			{ // for horizontal display (Adjust number of rows)
 				displayOptions = new TextInputDialog("Number of Rows");
 				displayOptions.setTitle("Horizontal Adjustment");
 				displayOptions.setHeaderText("Input the desired number of rows");
@@ -323,7 +356,8 @@ public class UserPane extends BorderPane {
 
 	}
 
-	public boolean findValuetoDelete() {
+	public boolean findValuetoDelete() 
+	{
 		float dValue = 0;
 		TextInputDialog deleteValue = new TextInputDialog("value");
 		deleteValue.setTitle("Delete a value");
@@ -331,12 +365,15 @@ public class UserPane extends BorderPane {
 		deleteValue.setContentText("Please enter a number: ");
 
 		Optional<String> result = deleteValue.showAndWait();
-		if (result.isPresent()) {
+		if (result.isPresent()) 
+		{
 			dValue = Float.valueOf(result.get());
 		}
 
-		for (int i = 0; i < data.size(); i++) {
-			if (data.get(i) == dValue) {
+		for (int i = 0; i < data.size(); i++)
+		{
+			if (data.get(i) == dValue)
+			{
 				data.remove(i);
 				return true;
 			}
@@ -346,7 +383,8 @@ public class UserPane extends BorderPane {
 	
 
 
-	public void displayData() {
+	public void displayData() 
+	{
 		stats.getChildren().removeAll(stats.getChildren());
 		stats.setPrefColumns(columns);
 		stats.setPrefRows(rows);
@@ -354,40 +392,61 @@ public class UserPane extends BorderPane {
 		Label average;
 		//Label median;
 
-		for (int i = 0; i < data.size(); i++) {
+		for (int i = 0; i < data.size(); i++)
+		{
 			current = new Label("" + data.get(i));
 			stats.getChildren().add(current);
 			avg += (float) data.get(i);
 			
+			if(data.size() %2 == 0)
+			{	
+				median = data.get(data.size()/2);
+				median2 = data.get((data.size()/2) -1);	
+				medianLbl = new Label("median =" + median + "," + median2);
+			}
+			else
+			{
+				median = data.get(data.size()/2);
+				medianLbl = new Label("median =" + median);
+			}
+			
 		}
 		float averages = (float) avg / data.size();
-		average = new Label("mean = " + averages);
-		//median = new Label("median =" + findMedian(data,data.size()));
-		stats.getChildren().add(average);
+		average = new Label("mean = " + df.format(averages));
+		//medianLbl = new Label("median =" + median + "," + median2);
+		stats.getChildren().addAll(average,medianLbl);
 	}
 
-	public void writeFileHandler(File file) {
-		try {
+	public void writeFileHandler(File file) 
+	{
+		try 
+		{
 			PrintWriter writer = new PrintWriter(file);
-			for (int i = 0; i < data.size(); i++) {
+			for (int i = 0; i < data.size(); i++) 
+			{
 				writer.println(data.get(i));
 			}
 			writer.close();
-		} catch (IOException ex) {
+		} 
+		catch (IOException ex)
+		{
 			Logger.getLogger(UserPane.class.getName());
 		}
 	}
 
-	public void readFileHandler(File file) {
+	public void readFileHandler(File file) 
+	{
 		try {
 			FileReader fr = new FileReader(file);
 			BufferedReader inFile = new BufferedReader(fr);
 			String line;
 
-			while ((line = inFile.readLine()) != null) {
+			while ((line = inFile.readLine()) != null) 
+			{
 				// values that are non-numbers/symbols will be filtered out here, and will not
 				// be added to the data array
-				if (line.matches("[0.0-9.0]+")) {
+				if (line.matches("[0.0-9.0]+")) 
+				{
 					data.add(Float.parseFloat(line));
 
 				}
@@ -395,19 +454,21 @@ public class UserPane extends BorderPane {
 			inFile.close();
 			displayData();
 
-			addNewButton.setDisable(false);
+			//addNewButton.setDisable(false);
 			deleteButton.setDisable(false);
 			displayStats.setDisable(false);
 			outputFile.setDisable(false);
 
-		} catch (FileNotFoundException ex) {
+		} catch (FileNotFoundException ex) 
+		{
 			messageFrame = new Alert(AlertType.ERROR);
 			messageFrame.setTitle("Data Entry Error");
 			messageFrame.setHeaderText("An error has occured.");
 			messageFrame.setContentText("The file " + file + " was not found, please enter valid file name");
 
 			messageFrame.showAndWait();
-		} catch (IOException ex2) {
+		} catch (IOException ex2)
+		{
 			System.out.println("exception");
 
 			messageFrame = new Alert(AlertType.ERROR);
