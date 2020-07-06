@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -52,8 +53,8 @@ public class UserPane extends BorderPane
 	private List<Float> data = new ArrayList<>();
 	private int rows, columns;
 	public float avg;
-	public float median;
-	public float median2;
+	public Object median;
+	public Object median2;
 	
 
 	FileWriter fw;
@@ -104,7 +105,7 @@ public class UserPane extends BorderPane
 
 		// Instructions and Text Area for manual entry:
 		dataEntry = new TextArea();
-		dataEntry.setText("Ex: 34 6 8 20 9 28");
+		dataEntry.setText("34 6 8 20 9 28");
 		dataEntry.setFont(Font.font("Times New Roman", 15));
 		label1 = new Label();
 		label1.setText("Enter data manually below OR press 'Add data from file' to upload a file");
@@ -136,7 +137,7 @@ public class UserPane extends BorderPane
 
 		// Pane where all of the data and stats will be displayed
 		stats = new TilePane();
-		stats.setHgap(10);
+		stats.setHgap(10); // 150 = 3 
 		stats.setVgap(10);
 		stats.setPadding(new Insets(0, 10, 0, 10));
 
@@ -392,7 +393,9 @@ public class UserPane extends BorderPane
 		Label current;
 		Label average;
 		//Label median;
-
+		Object[] objects = data.toArray(); 
+		Arrays.sort(objects);
+		
 		for (int i = 0; i < data.size(); i++)
 		{
 			current = new Label("" + data.get(i));
@@ -401,17 +404,19 @@ public class UserPane extends BorderPane
 			
 			if(data.size() %2 == 0)
 			{	
-				median = data.get(data.size()/2);
-				median2 = data.get((data.size()/2) -1);	
+				median = objects[data.size()/2];
+				median2 = objects[(data.size()/2) -1];	
 				medianLbl = new Label("median =" + median + "," + median2);
 			}
 			else
 			{
-				median = data.get(data.size()/2);
+				median = objects[data.size()/2];
 				medianLbl = new Label("median =" + median);
 			}
 			
 		}
+
+		
 		float averages = (float) avg / data.size();
 		average = new Label("mean = " + df.format(averages));
 		//medianLbl = new Label("median =" + median + "," + median2);
