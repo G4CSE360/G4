@@ -21,6 +21,7 @@ public class UserInterface extends Application
       primaryStage.setTitle("Stats GUI"); 
       primaryStage.setScene(scene); // Place the scene in the stage
       primaryStage.show(); // Display the stage
+      
    }
    public static void main(String[] args)
    {
