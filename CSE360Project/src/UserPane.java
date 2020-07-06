@@ -1,9 +1,7 @@
-
-
-
 //Group 4
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -17,6 +15,7 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.layout.HBox;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.paint.Color;
@@ -24,12 +23,18 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.geometry.Orientation;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-
-
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -51,12 +56,18 @@ public class UserPane extends BorderPane
 	private float[] data;
 	private int rows, columns;
 	private String filename;
+	FileWriter fw;
+	BufferedWriter bw;
+	PrintWriter outFile;
+	FileChooser fileChooser;
+	Stage newStage;
 	//Pop Ups:
 	Alert messageFrame;
 	TextInputDialog displayOptions;
 	TextInputDialog fileInput;
 	ChoiceDialog<String> deleteOptions;
 	List<String> choices = new ArrayList<>();
+	
 	
 	// Constructor
 
@@ -163,7 +174,7 @@ public class UserPane extends BorderPane
 				
 				for(int i = 0; i < dataString.length; i++) 
 				{
-					if(!dataString[i].matches("[0-9]+"))
+					if(!dataString[i].matches("[0.0-9.0]+"))
 					{
 						messageFrame = new Alert(AlertType.ERROR);
 						messageFrame.setTitle("Data Entry Error");
@@ -178,7 +189,7 @@ public class UserPane extends BorderPane
 				data = new float[dataString.length];
 				for(int j = 0; j<dataString.length; j++) 
 				{
-					data[j] = Integer.parseInt(dataString[j]);
+					data[j] = Float.parseFloat(dataString[j]);
 				}
 				
 				//Now that there is data, the following options are available thus enabled
@@ -192,7 +203,7 @@ public class UserPane extends BorderPane
 			}
 			else if(source == fileButton)
 			{ //user has opted to upload a file with data
-				fileInput = new TextInputDialog(".txt file name");
+				/*fileInput = new TextInputDialog(".txt file name");
 				fileInput.setTitle("Upload Data");
 				fileInput.setHeaderText("Input a file name with your data");
 				fileInput.setContentText("Please enter file name");
@@ -200,9 +211,15 @@ public class UserPane extends BorderPane
 				Optional<String> result = fileInput.showAndWait();
 				if(result.isPresent()) {
 					filename = result.get();
+					readFileHandler(filename);
 				}
-				
+				*/
+				fileChooser = new FileChooser();
+			
+				File selectedFile = fileChooser.showOpenDialog(newStage);
+				readFileHandler(selectedFile);
 			}
+			
 			else if(source == deleteButton) 
 			{
 				choices.add("Delete All");
@@ -341,6 +358,68 @@ public class UserPane extends BorderPane
 			current = new Label("" + data[i]);
 			stats.getChildren().add(current);
 		}
+	}
+	
+	public void writeFileHandler(String file) {
+		try{
+			fw = new FileWriter(file);
+			bw = new BufferedWriter(fw);
+			outFile = new PrintWriter(bw);
+			
+		}catch (FileNotFoundException ex) {
+			System.out.println("The file " + filename + " was not found");
+		} catch (IOException ex2) {
+			System.out.println("exception");
+		}
+	}
+	
+	public void readFileHandler(File file) {
+		try {
+			FileReader fr = new FileReader(file);
+			BufferedReader inFile = new BufferedReader(fr);
+			String line;
+			int count = 0;
+			int index = 0;
+
+			while((line = inFile.readLine()) != null) {
+				if(line.matches("[0.0-9.0]+")) {
+					count++;
+				}
+			}
+			data = new float[count];
+			fr = new FileReader(file);
+			inFile = new BufferedReader(fr);
+			
+			while((line = inFile.readLine()) != null) {
+				//values that are non-numbers/symbols will be filtered out here, and will not be added to the data array
+				if(line.matches("[0.0-9.0]+"))
+				{
+					data[index] = Float.parseFloat(line);
+					index++;
+				}
+			}
+
+			inFile.close();
+			displayData();
+		} catch (FileNotFoundException ex) {
+			messageFrame = new Alert(AlertType.ERROR);
+			messageFrame.setTitle("Data Entry Error");
+			messageFrame.setHeaderText("An error has occured.");
+			messageFrame.setContentText("The file " + file + " was not found, please enter valid file name");
+			
+			messageFrame.showAndWait();
+		} catch (IOException ex2) {
+			System.out.println("exception");
+			
+			messageFrame = new Alert(AlertType.ERROR);
+			messageFrame.setTitle("Data Entry Error");
+			messageFrame.setHeaderText("An error has occured.");
+			messageFrame.setContentText("IOExcpetion has occured, please try again");
+			
+			messageFrame.showAndWait();
+		}
+		// ************************************************************************************/
+		
 	}
 
 }// end class UserPane
