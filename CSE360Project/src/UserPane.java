@@ -34,6 +34,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import javafx.collections.FXCollections;
@@ -64,7 +65,7 @@ public class UserPane extends BorderPane
 	//Pop Ups:
 	Alert messageFrame;
 	TextInputDialog displayOptions;
-	TextInputDialog fileInput;
+
 	ChoiceDialog<String> deleteOptions;
 	List<String> choices = new ArrayList<>();
 	
@@ -202,20 +203,10 @@ public class UserPane extends BorderPane
 				
 			}
 			else if(source == fileButton)
-			{ //user has opted to upload a file with data
-				/*fileInput = new TextInputDialog(".txt file name");
-				fileInput.setTitle("Upload Data");
-				fileInput.setHeaderText("Input a file name with your data");
-				fileInput.setContentText("Please enter file name");
-				
-				Optional<String> result = fileInput.showAndWait();
-				if(result.isPresent()) {
-					filename = result.get();
-					readFileHandler(filename);
-				}
-				*/
+			{ 
 				fileChooser = new FileChooser();
-			
+				fileChooser.setTitle("Import Data File");
+				fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
 				File selectedFile = fileChooser.showOpenDialog(newStage);
 				readFileHandler(selectedFile);
 			}
@@ -271,9 +262,16 @@ public class UserPane extends BorderPane
 				}
 				
 			}
-			else if(source == displayStats)
+			else if(source == outputFile)
 			{
 				
+				fileChooser = new FileChooser();
+				fileChooser.setTitle("Save Data");
+				fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("Text Files", "*.txt"));
+				File newFile = fileChooser.showSaveDialog(newStage);
+				if(newFile != null) {
+					writeFileHandler(newFile);
+				}
 			}
 		
 		}
@@ -361,16 +359,15 @@ public class UserPane extends BorderPane
 		}
 	}
 	
-	public void writeFileHandler(String file) {
-		try{
-			fw = new FileWriter(file);
-			bw = new BufferedWriter(fw);
-			outFile = new PrintWriter(bw);
-			
-		}catch (FileNotFoundException ex) {
-			System.out.println("The file " + filename + " was not found");
-		} catch (IOException ex2) {
-			System.out.println("exception");
+	public void writeFileHandler(File file) {
+		try {
+			PrintWriter writer = new PrintWriter(file);
+			for(int i = 0; i < data.length; i++) {
+				writer.println(data[i]);
+			}
+			writer.close();
+		}catch(IOException ex){
+			Logger.getLogger(UserPane.class.getName());
 		}
 	}
 	
