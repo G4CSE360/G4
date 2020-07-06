@@ -180,8 +180,9 @@ public class UserPane extends BorderPane
 				avg = 0;
 				for (int i = 0; i < dataString.length; i++) 
 				{
-					if (!dataString[i].matches("[0.0-9.0]+")) 
+					if (!dataString[i].matches("[-9.0-9.0]+")) 
 					{
+						
 						messageFrame = new Alert(AlertType.ERROR);
 						messageFrame.setTitle("Data Entry Error");
 						messageFrame.setHeaderText("An error has occured.");
