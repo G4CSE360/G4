@@ -360,6 +360,7 @@ public class UserPane extends BorderPane {
 					Object[] avgobject = data.toArray();
 					Arrays.sort(avgobject);
 					int count = 0;
+					distavg = 0;
 					int size = (data.size()*percent)/100;
 					int datasize = data.size();
 					while (size < datasize) {
@@ -369,7 +370,9 @@ public class UserPane extends BorderPane {
 					} 
 					double distribavg;
 					distribavg = (distavg*100)/(count*100);
-					Label distlabel = new Label("average of numbers above " + percent + " percent = " + df.format(distribavg));
+					Label distlabel = new Label("Average of numbers above " + percent + " percent = " + df.format(distribavg));
+					distlabel.setFont(Font.font("Times New Roman", 25));
+
 					percentPane.getChildren().add(distlabel);
 				displayStats();
 				}
@@ -473,16 +476,16 @@ public class UserPane extends BorderPane {
 			if (data.size() % 2 == 0) {
 				median = objects[data.size() / 2];
 				median2 = objects[(data.size() / 2) - 1];
-				medianLbl = new Label("median =" + median + "," + median2);
+				medianLbl = new Label("Median =" + median + "," + median2);
 			} else {
 				median = objects[data.size() / 2];
-				medianLbl = new Label("median =" + median);
+				medianLbl = new Label("Median =" + median);
 			}
 
 		}
 
 		float averages = (float) avg / data.size();
-		average = new Label("mean = " + df.format(averages));
+		average = new Label("Average = " + df.format(averages));
 		average.setStyle("-fx-border-color: white");
 		average.setFont(Font.font("Times New Roman", 25));
 		medianLbl.setStyle("-fx-border-color: white");
@@ -626,7 +629,7 @@ public class UserPane extends BorderPane {
 			while ((line = inFile.readLine()) != null) {
 				// values that are non-numbers/symbols will be filtered out here, and will not
 				// be added to the data array
-				if (line.matches("[0.0-9.0]+")) {
+				if (line.matches("[-9.0-9.0]+")) {
 					data.add(Float.parseFloat(line));
 
 				}
