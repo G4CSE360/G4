@@ -33,6 +33,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.lang.Math;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -61,7 +62,8 @@ public class UserPane extends BorderPane {
 	private boolean isHorizOn = false;
 	private List<Float> data = new ArrayList<>();
 	private int rows, columns;
-	public float avg;
+	public int percent;
+	public float avg, distavg;
 	public Object median;
 	public Object median2;
 	private TabPane tabPane = new TabPane();
@@ -313,7 +315,7 @@ public class UserPane extends BorderPane {
 							displayData();
 							displayStats();
 							return;
-						} else {
+						}else {
 							messageFrame = new Alert(AlertType.WARNING);
 							messageFrame.setTitle("Warning");
 							messageFrame.setHeaderText(null);
@@ -354,6 +356,22 @@ public class UserPane extends BorderPane {
 				if(result.isPresent()) {
 					//percentage distribution function HERE, the variable "result" holds the percentage
 					//value that the user would like to use
+					percent = Integer.valueOf(result.get());
+					Object[] avgobject = data.toArray();
+					Arrays.sort(avgobject);
+					int count = 0;
+					int size = (data.size()*percent)/100;
+					int datasize = data.size();
+					while (size < datasize) {
+						distavg += (float) avgobject[size];
+						count++;
+						size++;
+					} 
+					double distribavg;
+					distribavg = (distavg*100)/(count*100);
+					Label distlabel = new Label("average of numbers above " + percent + " percent = " + df.format(distribavg));
+					percentPane.getChildren().add(distlabel);
+				displayStats();
 				}
 			}
 
