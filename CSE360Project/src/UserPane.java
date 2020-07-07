@@ -12,6 +12,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.TilePane;
@@ -495,8 +496,11 @@ public class UserPane extends BorderPane
 		float averages = (float) avg / data.size();
 		average = new Label("mean = " + df.format(averages));
 		average.setFont(Font.font("Times New Roman", 25));
+		average.setStyle("-fx-border-color: white");
+		medianLbl.setStyle("-fx-border-color: white");
 		//medianLbl = new Label("median =" + median + "," + median2);
 		stats.getChildren().addAll(average,medianLbl);
+		frequency();
 	}
 	
 	public void displayData() {
@@ -560,8 +564,55 @@ public class UserPane extends BorderPane
 		
 		
 	}
+	public void frequency() {
+		List<Float> temp = data;
+		float first = findMostFreq(temp);
+		
+		for(int i = 0; i < temp.size(); i++) {
+			if(temp.get(i) == first) {
+				temp.remove(i);
+				i--;
+			}
+		}
+		
+		float second = findMostFreq(temp);
+		for(int j = 0; j < temp.size(); j++) {
+			if(temp.get(j) == second) {
+				temp.remove(j);
+			}
+		}
+		
+		float third = findMostFreq(temp);
+		for(int k = 0; k < temp.size(); k++) {
+			if(temp.get(k) == third) {
+				temp.remove(k);
+			}
+		}
+		
+		Label top3 = new Label("TOP 3 REOCCURING VALUES\n" + "1. " + first + "\n2. " +  second + "\n3. " + third);
+		top3.setStyle("-fx-border-color: white");
+		top3.setFont(Font.font("Times New Roman", 25));
+		stats.getChildren().addAll(top3);
+	}
 	
 	
+	public float findMostFreq(List<Float> list) {
+		int freq = 0;
+		int newFreq = 0;
+		float target = 0;
+		for(int i = 0; i < list.size(); i++) {
+			newFreq = Collections.frequency(list, list.get(i));
+			
+			if(newFreq > freq) {
+				freq = newFreq;
+				target = list.get(i);
+			}
+		}
+	
+		return target;	
+			
+		
+	}
 	
 	public void defaultRowCol() {
 		columns =  data.size();
