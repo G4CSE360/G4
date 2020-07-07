@@ -49,7 +49,11 @@ public class UserPane extends BorderPane
 	private TextArea dataEntry;
 	private Label label1;
 	public Label medianLbl;
-	private TilePane stats;
+	private VBox stats;
+	private HBox statsData;
+	private VBox display;
+	private HBox displayH;
+	private boolean isHorizOn = false;
 	private List<Float> data = new ArrayList<>();
 	private int rows, columns;
 	public float avg;
@@ -101,7 +105,9 @@ public class UserPane extends BorderPane
 		deleteButton.setDisable(true);
 		displayStats.setDisable(true);
 		outputFile.setDisable(true);
+		
 		//addNewButton.setDisable(true);
+		
 
 		// Instructions and Text Area for manual entry:
 		dataEntry = new TextArea();
@@ -117,44 +123,61 @@ public class UserPane extends BorderPane
 		// ----
 		displayFeatures = new ComboBox<String>();
 		displayFeatures.getItems().addAll("display vertically", "display horizontally");
-
+		displayFeatures.setDisable(true);
+		
 		// topPane should contain two combo boxes and two buttons
 		HBox topPane = new HBox();
 		topPane.setSpacing(40);
 		topPane.setPadding(new Insets(10, 10, 10, 10));
 		topPane.setStyle("-fx-border-color: white");
 
-		topPane.setBackground(new Background(new BackgroundFill(Color.rgb(250, 250, 250), CornerRadii.EMPTY, Insets.EMPTY)));
+		topPane.setBackground(new Background(new BackgroundFill(Color.rgb(66,135,245), CornerRadii.EMPTY, Insets.EMPTY)));
 		topPane.getChildren().addAll(manualButton, fileButton, displayFeatures);
 
 		HBox midOptions = new HBox();
 		midOptions.setSpacing(40);
 		midOptions.setPadding(new Insets(10, 10, 10, 10));
 		midOptions.setStyle("-fx-border-color: white");
-		midOptions.setBackground(
-				new Background(new BackgroundFill(Color.rgb(250, 250, 250), CornerRadii.EMPTY, Insets.EMPTY)));
+		midOptions.setBackground(new Background(new BackgroundFill(Color.rgb(66,135,245), CornerRadii.EMPTY, Insets.EMPTY)));
 		midOptions.getChildren().addAll(deleteButton);
 
 		// Pane where all of the data and stats will be displayed
-		stats = new TilePane();
-		stats.setHgap(10); // 150 = 3 
-		stats.setVgap(10);
-		stats.setPadding(new Insets(0, 10, 0, 10));
+	//	stats = new TilePane();
+	//	stats.setHgap(10); // 150 = 3 
+	//	stats.setVgap(10);
+		display = new VBox();
+		display.setPadding(new Insets(10, 0, 10, 0));
+		display.setSpacing(10);
+		
+		
+		displayH = new HBox();
+		displayH.setPadding(new Insets(10, 0, 10, 0));
+		displayH.setSpacing(10);
+		
+		stats = new VBox();
+		stats.setPadding(new Insets(10, 0, 10, 0));
+		stats.setSpacing(10);
+		
+		statsData = new HBox();
+		statsData.setPadding(new Insets(10, 0, 10, 0));
+		statsData.setSpacing(100);
+		statsData.getChildren().addAll(display, displayH, stats);
 
 		VBox midPane = new VBox();
 		midPane.setSpacing(10);
 		midPane.setPadding(new Insets(10, 10, 10, 10));
 		midPane.setStyle("-fx-border-color: white");
 		midPane.setBackground(
-				new Background(new BackgroundFill(Color.rgb(250, 250, 250), CornerRadii.EMPTY, Insets.EMPTY)));
-		midPane.getChildren().addAll(label1, dataEntry, midOptions, stats);
+				new Background(new BackgroundFill(Color.rgb(199,232,255), CornerRadii.EMPTY, Insets.EMPTY)));
+		midPane.getChildren().addAll(label1, dataEntry, midOptions, statsData);
+		
 
 		HBox bottomPane = new HBox();
 		bottomPane.setSpacing(100);
 		bottomPane.setPadding(new Insets(10, 100, 10, 10));
 		bottomPane.setStyle("-fx-border-color: white");
 		bottomPane.setBackground(
-				new Background(new BackgroundFill(Color.rgb(250, 250, 250), CornerRadii.EMPTY, Insets.EMPTY)));
+				new Background(new BackgroundFill(Color.rgb(66,135,245), CornerRadii.EMPTY, Insets.EMPTY)));
 		bottomPane.getChildren().addAll(displayStats, outputFile);
 
 		this.setCenter(midPane);
@@ -205,8 +228,10 @@ public class UserPane extends BorderPane
 				deleteButton.setDisable(false);
 				displayStats.setDisable(false);
 				outputFile.setDisable(false);
-
+				displayFeatures.setDisable(false);
+				defaultRowCol();
 				displayData();
+				displayStats();
 
 			} 
 			else if (source == fileButton)
@@ -239,7 +264,9 @@ public class UserPane extends BorderPane
 						deleteButton.setDisable(true);
 						displayStats.setDisable(true);
 						outputFile.setDisable(true);
+						displayFeatures.setDisable(true);
 						displayData();
+						displayStats();
 
 					} 
 					else 
@@ -253,6 +280,7 @@ public class UserPane extends BorderPane
 
 							messageFrame.showAndWait();
 							displayData();
+							displayStats();
 							return;
 						}
 						else 
@@ -264,6 +292,7 @@ public class UserPane extends BorderPane
 
 							messageFrame.showAndWait();
 							displayData();
+							displayStats();
 							return;
 						}
 					}
@@ -323,6 +352,7 @@ public class UserPane extends BorderPane
 			int dSelection = displayFeatures.getSelectionModel().getSelectedIndex();
 
 			if (dSelection == 0) { // for vertical display (Adjust number of columns)
+				isHorizOn = false;
 				displayOptions = new TextInputDialog("Number of Columns");
 				displayOptions.setTitle("Vertical Adjustment");
 				displayOptions.setHeaderText("Input the desired number of columns");
@@ -333,13 +363,22 @@ public class UserPane extends BorderPane
 				{
 					Integer Cvalue = Integer.valueOf(result.get());
 					columns = Cvalue;
+					
+					if(data.size() % columns == 0) {
+						rows = data.size() / columns;
+					}else {
+						rows = (int) Math.ceil(data.size() / columns) + 1;
+					}
+					
 					displayData();
+					displayStats();
 					return;
 				}
 
 			} 
 			else 
 			{ // for horizontal display (Adjust number of rows)
+				isHorizOn = true;
 				displayOptions = new TextInputDialog("Number of Rows");
 				displayOptions.setTitle("Horizontal Adjustment");
 				displayOptions.setHeaderText("Input the desired number of rows");
@@ -349,7 +388,13 @@ public class UserPane extends BorderPane
 				if (result.isPresent()) {
 					Integer Rvalue = Integer.valueOf(result.get());
 					rows = Rvalue;
+					if(data.size() % rows == 0) {
+						columns = data.size() / rows;
+					}else {
+						columns = (int) Math.ceil(data.size() / rows) + 1;
+					}
 					displayData();
+					displayStats();
 					return;
 				}
 			}
@@ -385,21 +430,17 @@ public class UserPane extends BorderPane
 	
 
 
-	public void displayData() 
+	public void displayStats() 
 	{
 		stats.getChildren().removeAll(stats.getChildren());
-		stats.setPrefColumns(columns);
-		stats.setPrefRows(rows);
-		Label current;
 		Label average;
 		//Label median;
 		Object[] objects = data.toArray(); 
 		Arrays.sort(objects);
-		
+		avg =  0; median = 0; median2 = 0;
 		for (int i = 0; i < data.size(); i++)
 		{
-			current = new Label("" + data.get(i));
-			stats.getChildren().add(current);
+			
 			avg += (float) data.get(i);
 			
 			if(data.size() %2 == 0)
@@ -421,6 +462,69 @@ public class UserPane extends BorderPane
 		average = new Label("mean = " + df.format(averages));
 		//medianLbl = new Label("median =" + median + "," + median2);
 		stats.getChildren().addAll(average,medianLbl);
+	}
+	
+	public void displayData() {
+		display.getChildren().removeAll(display.getChildren());
+		displayH.getChildren().removeAll(displayH.getChildren());
+		
+		if(!isHorizOn) {
+			
+			String currentText = "";
+			Label current;
+			int index = 0;
+				
+			
+				for( int j = 0; j < rows; j++) {
+					currentText = "";
+					for(int k = 0; k < columns; k++) {
+						
+						if(index >= data.size()) {
+							current = new Label(currentText);
+							display.getChildren().addAll(current);
+							return;
+						}
+			
+						currentText += String.format("%f\t",data.get(index)) ;
+						index++;
+					}
+					
+					current = new Label(currentText);
+					display.getChildren().addAll(current);
+				}
+		}else {
+			String currentText = "";
+			Label current;
+			int index = 0;
+				
+			
+				for( int j = 0; j < columns; j++) {
+					currentText = "";
+					for(int k = 0; k < rows; k++) {
+						
+						if(index >= data.size()) {
+							current = new Label(currentText);
+							displayH.getChildren().addAll(current);
+							return;
+						}
+			
+						currentText += data.get(index) + "\n";
+						index++;
+					}
+					
+					current = new Label(currentText);
+					displayH.getChildren().addAll(current);
+				}
+		}
+		
+		
+	}
+	
+	
+	
+	public void defaultRowCol() {
+		columns =  (int) Math.floor(Math.sqrt(data.size()));
+		rows = (int) Math.ceil(data.size() / columns);
 	}
 
 	public void writeFileHandler(File file) 
@@ -458,12 +562,15 @@ public class UserPane extends BorderPane
 				}
 			}
 			inFile.close();
+			defaultRowCol();
 			displayData();
+			displayStats();
 
 			//addNewButton.setDisable(false);
 			deleteButton.setDisable(false);
 			displayStats.setDisable(false);
 			outputFile.setDisable(false);
+			displayFeatures.setDisable(false);
 
 		} catch (FileNotFoundException ex) 
 		{
@@ -487,4 +594,5 @@ public class UserPane extends BorderPane
 		// ************************************************************************************/
 
 	}
+	
 }// end class UserPane
