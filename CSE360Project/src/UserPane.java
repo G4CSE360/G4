@@ -113,6 +113,7 @@ public class UserPane extends BorderPane
 		dataEntry = new TextArea();
 		dataEntry.setText("34 6 8 20 9 28");
 		dataEntry.setFont(Font.font("Times New Roman", 15));
+		dataEntry.setMaxSize(800, 100);
 		label1 = new Label();
 		label1.setText("Enter data manually below OR press 'Add data from file' to upload a file");
 		label1.setFont(Font.font("Times New Roman", 15));
@@ -152,7 +153,7 @@ public class UserPane extends BorderPane
 		
 		displayH = new HBox();
 		displayH.setPadding(new Insets(10, 0, 10, 0));
-		displayH.setSpacing(10);
+		displayH.setSpacing(20);
 		
 		stats = new VBox();
 		stats.setPadding(new Insets(10, 0, 10, 0));
@@ -485,7 +486,7 @@ public class UserPane extends BorderPane
 							return;
 						}
 			
-						currentText += String.format("%f\t",data.get(index)) ;
+						currentText += data.get(index) + "\t\t";
 						index++;
 					}
 					
