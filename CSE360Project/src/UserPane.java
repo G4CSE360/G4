@@ -545,6 +545,7 @@ public class UserPane extends BorderPane
 						
 						if(index >= data.size()) {
 							current = new Label(currentText);
+							current.setFont(Font.font("Times New Roman", 20));
 							displayH.getChildren().addAll(current);
 							return;
 						}
@@ -554,6 +555,7 @@ public class UserPane extends BorderPane
 					}
 					
 					current = new Label(currentText);
+					current.setFont(Font.font("Times New Roman", 20));
 					displayH.getChildren().addAll(current);
 				}
 		}
