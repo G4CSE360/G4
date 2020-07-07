@@ -52,7 +52,10 @@ public class UserPane extends BorderPane {
 	private TextArea dataEntry;
 	private Label label1;
 	public Label medianLbl;
-	private Label percentData;
+	public Label average;
+	public Label top3;
+	public Label distlabel;
+	private Label percentData;	
 	private VBox stats;
 	private HBox statsLayout;
 	private VBox percentPane;
@@ -131,7 +134,7 @@ public class UserPane extends BorderPane {
 		label1.setText("Enter data manually below OR press 'Add data from file' to upload a file");
 		label1.setFont(Font.font("Times New Roman", 15));
 		label1.setTextFill(Color.web("#000000"));
-
+		
 		// Create the display comboBox,
 		// ----
 		displayFeatures = new ComboBox<String>();
@@ -370,7 +373,7 @@ public class UserPane extends BorderPane {
 					} 
 					double distribavg;
 					distribavg = (distavg*100)/(count*100);
-					Label distlabel = new Label("Average of numbers above " + percent + " percent = " + df.format(distribavg));
+				    distlabel = new Label("Average of numbers above " + percent + " percent = " + df.format(distribavg));
 					distlabel.setFont(Font.font("Times New Roman", 25));
 
 					percentPane.getChildren().add(distlabel);
@@ -462,7 +465,7 @@ public class UserPane extends BorderPane {
 		title.setFont(Font.font("Times New Roman", 25));
 		stats.getChildren().add(title);
 
-		Label average;
+		//Label average;
 		// Label median;
 		Object[] objects = data.toArray();
 		Arrays.sort(objects);
@@ -580,7 +583,7 @@ public class UserPane extends BorderPane {
 			}
 		}
 
-		Label top3 = new Label("TOP 3 REOCCURING VALUES\n" + "1. " + first + "\n2. " + second + "\n3. " + third);
+		top3 = new Label("TOP 3 REOCCURRING VALUES\n" + "1. " + first + "\n2. " + second + "\n3. " + third);
 		top3.setStyle("-fx-border-color: white");
 		top3.setFont(Font.font("Times New Roman", 25));
 		stats.getChildren().addAll(top3);
@@ -614,6 +617,10 @@ public class UserPane extends BorderPane {
 			for (int i = 0; i < data.size(); i++) {
 				writer.println(data.get(i));
 			}
+			writer.println(average.getText());
+			writer.println(medianLbl.getText());
+			writer.println(top3.getText());
+			writer.println(distlabel.getText());
 			writer.close();
 		} catch (IOException ex) {
 			Logger.getLogger(UserPane.class.getName());
