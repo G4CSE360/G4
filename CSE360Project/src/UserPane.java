@@ -1,4 +1,3 @@
-
 //Group 4
 //import java.util.*; 
 
@@ -12,7 +11,6 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.TilePane;
@@ -36,6 +34,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.TextArea;
@@ -44,11 +44,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
-
-
 public class UserPane extends BorderPane 
 {
-	private Button manualButton, fileButton, deleteButton, sortAscend, sortDescend, outputFile;
+	private Button manualButton, fileButton, deleteButton, displayStats, outputFile, sortAscend, sortDescend;
 	//addNewButton;
 	private ComboBox<String> displayFeatures;
 
@@ -67,7 +65,6 @@ public class UserPane extends BorderPane
 	public Object median2;
 	private TabPane tabPane = new TabPane();
 
-	
 	FileWriter fw;
 	BufferedWriter bw;
 	PrintWriter outFile;
@@ -85,7 +82,8 @@ public class UserPane extends BorderPane
 	// Constructor
 	public UserPane() 
 	{
-		
+		// Step #1: initialize instance variable and set up layout
+		// Initialize instance variable and set up layout
 
 		// Buttons:
 		manualButton = new Button("add data");
@@ -96,12 +94,14 @@ public class UserPane extends BorderPane
 		deleteButton.setFont(Font.font("Times New Roman", 15));
 		choices.add("Delete All");
 		choices.add("Delete Data Value");
+		displayStats = new Button("display statistics");
+		displayStats.setFont(Font.font("Times New Roman", 15));
+		outputFile = new Button("output file");
+		outputFile.setFont(Font.font("Times New Roman", 15));
 		sortAscend = new Button("Ascending Order");
 		sortAscend.setFont(Font.font("Times New Roman", 15));
 		sortDescend = new Button("Descending Order");
 		sortDescend.setFont(Font.font("Times New Roman", 15));
-		outputFile = new Button("output file");
-		outputFile.setFont(Font.font("Times New Roman", 15));
 		//addNewButton = new Button("add new data");
 
 		//addNewButton.setFont(Font.font("Times New Roman", 15));
@@ -111,8 +111,7 @@ public class UserPane extends BorderPane
 		manualButton.setDisable(false);
 		fileButton.setDisable(false);
 		deleteButton.setDisable(true);
-		sortAscend.setDisable(true);
-		sortDescend.setDisable(true);
+		displayStats.setDisable(true);
 		outputFile.setDisable(true);
 		
 		//addNewButton.setDisable(true);
@@ -164,6 +163,10 @@ public class UserPane extends BorderPane
 		displayH.setPadding(new Insets(10, 0, 10, 0));
 		displayH.setSpacing(20);
 		
+		stats = new VBox();
+		stats.setPadding(new Insets(10, 0, 10, 0));
+		stats.setSpacing(10);
+		
 		allDisplays = new HBox();
 		allDisplays.setPadding(new Insets(10, 0, 10, 0));
 		allDisplays.setSpacing(100);
@@ -186,12 +189,12 @@ public class UserPane extends BorderPane
         tabPane.setMinHeight(300);
   
         tabPane.getTabs().addAll(tab1, tab2);
-        
 		VBox midPane = new VBox();
 		midPane.setSpacing(10);
 		midPane.setPadding(new Insets(10, 10, 10, 10));
 		midPane.setStyle("-fx-border-color: white");
-		midPane.setBackground(new Background(new BackgroundFill(Color.rgb(199,232,255), CornerRadii.EMPTY, Insets.EMPTY)));
+		midPane.setBackground(
+				new Background(new BackgroundFill(Color.rgb(199,232,255), CornerRadii.EMPTY, Insets.EMPTY)));
 		midPane.getChildren().addAll(label1, dataEntry, midOptions, tabPane);
 		
 
@@ -209,9 +212,10 @@ public class UserPane extends BorderPane
 		manualButton.setOnAction(new ButtonHandler());
 		fileButton.setOnAction(new ButtonHandler());
 		deleteButton.setOnAction(new ButtonHandler());
+		displayStats.setOnAction(new ButtonHandler());
+		outputFile.setOnAction(new ButtonHandler());
 		sortDescend.setOnAction(new ButtonHandler());
 		sortAscend.setOnAction(new ButtonHandler());
-		outputFile.setOnAction(new ButtonHandler());
 		//addNewButton.setOnAction(new ButtonHandler());
 		displayFeatures.setOnAction(new DisplayHandler());
 
@@ -250,8 +254,7 @@ public class UserPane extends BorderPane
 				// Now that there is data, the following options are available thus enabled
 				//addNewButton.setDisable(false);
 				deleteButton.setDisable(false);
-				sortAscend.setDisable(false);
-				sortDescend.setDisable(false);
+				displayStats.setDisable(false);
 				outputFile.setDisable(false);
 				displayFeatures.setDisable(false);
 				defaultRowCol();
@@ -287,8 +290,7 @@ public class UserPane extends BorderPane
 
 						//addNewButton.setDisable(true);
 						deleteButton.setDisable(true);
-						sortAscend.setDisable(true);
-						sortDescend.setDisable(true);
+						displayStats.setDisable(true);
 						outputFile.setDisable(true);
 						displayFeatures.setDisable(true);
 						displayData();
@@ -337,22 +339,19 @@ public class UserPane extends BorderPane
 				{
 					writeFileHandler(newFile);
 				}
-			}
-			else if(source == sortAscend) {
+			}else if(source == sortAscend) {
 				Collections.sort(data);
 				displayData();
 			}else if(source == sortDescend) {
 				Collections.reverse(data);
 				displayData();
-			}
+			} 
 			/*else if (source == addNewButton) 
 			{
-
 				TextInputDialog addNew = new TextInputDialog("value");
 				addNew.setTitle("Delete a value");
 				addNew.setHeaderText("Value entered here will be deleted from data");
 				addNew.setContentText("Please enter a number: ");
-
 				Optional<String> result = addNew.showAndWait();
 				if (result.isPresent()) 
 				{
@@ -367,12 +366,9 @@ public class UserPane extends BorderPane
 						messageFrame.setTitle("Data Entry Error");
 						messageFrame.setHeaderText("An error has occured.");
 						messageFrame.setContentText("Not a valid data value!");
-
 						messageFrame.showAndWait();
 					}
-
 				}
-
 			}*/
 
 		}
@@ -466,6 +462,11 @@ public class UserPane extends BorderPane
 	public void displayStats() 
 	{
 		stats.getChildren().removeAll(stats.getChildren());
+		Label title = new Label("Statistics:");
+		title.setStyle("-fx-border-color: white");
+		title.setFont(Font.font("Times New Roman", 25));
+		stats.getChildren().add(title);
+		
 		Label average;
 		//Label median;
 		Object[] objects = data.toArray(); 
@@ -480,14 +481,12 @@ public class UserPane extends BorderPane
 			{	
 				median = objects[data.size()/2];
 				median2 = objects[(data.size()/2) -1];	
-				medianLbl = new Label("median =" + median + ", " + median2);
-				medianLbl.setFont(Font.font("Times New Roman", 25));
+				medianLbl = new Label("median =" + median + "," + median2);
 			}
 			else
 			{
 				median = objects[data.size()/2];
 				medianLbl = new Label("median =" + median);
-				medianLbl.setFont(Font.font("Times New Roman", 25));
 			}
 			
 		}
@@ -495,9 +494,10 @@ public class UserPane extends BorderPane
 		
 		float averages = (float) avg / data.size();
 		average = new Label("mean = " + df.format(averages));
-		average.setFont(Font.font("Times New Roman", 25));
 		average.setStyle("-fx-border-color: white");
+		average.setFont(Font.font("Times New Roman", 25));
 		medianLbl.setStyle("-fx-border-color: white");
+		medianLbl.setFont(Font.font("Times New Roman", 25));
 		//medianLbl = new Label("median =" + median + "," + median2);
 		stats.getChildren().addAll(average,medianLbl);
 		frequency();
@@ -511,7 +511,6 @@ public class UserPane extends BorderPane
 			
 			String currentText = "";
 			Label current;
-		
 			int index = 0;
 				
 			
@@ -523,7 +522,6 @@ public class UserPane extends BorderPane
 							current = new Label(currentText);
 							current.setFont(Font.font("Times New Roman", 20));
 							display.getChildren().addAll(current);
-							
 							return;
 						}
 			
@@ -547,7 +545,6 @@ public class UserPane extends BorderPane
 						
 						if(index >= data.size()) {
 							current = new Label(currentText);
-							current.setFont(Font.font("Times New Roman", 25));
 							displayH.getChildren().addAll(current);
 							return;
 						}
@@ -557,7 +554,6 @@ public class UserPane extends BorderPane
 					}
 					
 					current = new Label(currentText);
-					current.setFont(Font.font("Times New Roman", 25));
 					displayH.getChildren().addAll(current);
 				}
 		}
@@ -565,7 +561,10 @@ public class UserPane extends BorderPane
 		
 	}
 	public void frequency() {
-		List<Float> temp = data;
+		List<Float> temp = new ArrayList<>();
+		for(int m = 0; m < data.size(); m++) {
+			temp.add(m, data.get(m));
+		}
 		float first = findMostFreq(temp);
 		
 		for(int i = 0; i < temp.size(); i++) {
@@ -614,8 +613,10 @@ public class UserPane extends BorderPane
 		
 	}
 	
+	
+	
 	public void defaultRowCol() {
-		columns =  data.size();
+		columns =  (int) Math.floor(Math.sqrt(data.size()));
 		rows = (int) Math.ceil(data.size() / columns);
 	}
 
@@ -660,8 +661,7 @@ public class UserPane extends BorderPane
 
 			//addNewButton.setDisable(false);
 			deleteButton.setDisable(false);
-			sortDescend.setDisable(false);
-			sortAscend.setDisable(false);
+			displayStats.setDisable(false);
 			outputFile.setDisable(false);
 			displayFeatures.setDisable(false);
 
